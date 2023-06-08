@@ -1,0 +1,58 @@
+﻿@using Udemy.Models
+@{
+    ViewBag.Title = "ViewBadDemo";
+}
+<br />
+<h2>Multiples Modelos en una Vista</h2>
+<br />
+<hr />
+<h4>Tabla Marca</h4>
+
+
+<table class="table table-bordered table-hover">
+        <thead>
+            <tr>              
+                <th> Nombre</th>
+                <th> Descripcion</th>
+            </tr>
+        </thead>
+        <tbody>
+
+          @{foreach (var M in ViewBag.ListaMarca as List<Marca>)
+              {
+                  <tr>
+                      <td>@M.NOMBRE</td>
+                      <td>@M.DESCRIPCION</td>
+                  </tr>                                        
+              }
+         }
+
+      </tbody>
+    </table>
+<br />
+<hr />
+
+<h4> Tabla Sexo</h4>
+
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th> ID</th>
+            <th> Nombre</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        @{foreach (var M in ViewBag.ListaSexo as List<Sexo>)
+            {
+                <tr>
+                    <td>@M.IIDSEXO</td>
+                    <td>@M.NOMBRE</td>
+                </tr>
+            }
+        }
+
+    </tbody>
+</table>
+

@@ -1,0 +1,202 @@
+﻿@using Udemy.Models
+@model List<RolCLS>
+@{
+    ViewBag.Title = "Index";
+}
+
+<h3>Roles</h3>
+
+<hr />
+<button type="button" onclick="Agregar()" class="btn btn-primary glyphicon glyphicon-cloud-upload" data-toggle="modal" data-target="#exampleModal"></button>
+<br />
+<br />
+@using (Ajax.BeginForm("Filtro", "", new AjaxOptions
+{
+    HttpMethod = "POST",
+    UpdateTargetId = "divRol",
+    InsertionMode = InsertionMode.Replace,
+    LoadingElementId = "loader4"
+}, new { @id = "frmFiltro", @class = "form-inline" }))
+{
+      <!--Barra de carga -->
+    <div style="text-align:center;display:none" id="loader4">
+        <img src="~/Content/img/tenor.gif" height="30" width="100" />
+    </div>
+     @Html.TextBox("nombreRol", null, new { @class = "form-control", @placeholder="Busqueda por título" })
+      @*@Html.TextBox("nrcajaFROM", null, new { @class = "form-control" })
+      @Html.TextBox("nrcajaTO", null, new { @class = "form-control" })*@
+    @*<button type="submit" class="btn btn-primary">Buscar</button>*@
+    <br />
+    <br />
+    <div id="divRol">
+        @Html.Partial("_TablaRol", Model)
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Agregar Nuevo Rol</h5>
+                <button type="button"  class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div >
+            <br />
+            <!--Barra de carga -->
+            <div style="text-align:center;display:none" id="loader">
+                <img src="~/Content/img/tenor.gif" height="30" width="100" />
+            </div>
+            @using (Ajax.BeginForm("Guardar", "Rol",null, new AjaxOptions
+            {
+                HttpMethod = "POST",
+                OnSuccess = "Guardar",
+                UpdateTargetId = "error",
+                LoadingElementId ="loader"
+            }, new { @id = "myForm" }))
+            {
+                @Html.Hidden("titulo")
+            <div class="modal-body">
+            
+                <div>
+                    @Html.Label("Nombre Rol")
+                    @Html.TextBox("nombre", null, new { @class = "form-control" })
+                </div>
+                <div>
+                    @Html.Label("Descripción")
+                    @Html.TextBox("descripcion", null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClose" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" id="btnSubmit">Save changes</button>
+            </div>
+            }
+            <!--Div de carga-->
+            <div style="text-align:center;display:none" id="loaderDiv">
+            </div>
+          
+            <div id="error"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Eliminar Modal -->
+<div class="modal fade" id="exampleModalConfirmacion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">¿Esta seguro de eliminar este rol?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div style="padding:1em">
+                <button type="button" id="btnCerrarConfirmacion" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" onclick="EliminarRegistro()" class="btn btn-info">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Progress Bar
+    $(document).ready(function () {
+
+        $("#btnSubmit").click(function () {
+            $("loaderDiv").show();
+            var myformatdata = $("#myform").serialize();
+
+            $.ajax({
+                type: "POST",
+                url: "/Rol/Guardar",
+                data: myformatdata,
+                success: function ()
+                {
+                    $("#loaderDiv").hide();
+                    $("exampleModal").modal("hide");
+                }
+            })
+        })
+    })
+
+
+
+    //Titulo = -1 si es agregar
+    //Titulo = 1 si es editar
+
+    //Filtrar
+    var nombre = document.getElementById("nombreRol");
+    nombre.onkeyup = function () {
+        $("#frmFiltro").trigger("submit");        
+    }
+
+    //Limpiar
+    function Limpiar() {
+        document.getElementById("nombre").value = "";
+        document.getElementById("descripcion").value = "";
+        document.getElementById("error").value = "";
+    }
+
+    //Agregar
+    function Agregar() {
+        Limpiar();
+        document.getElementById("error").innerHTML = ""; //Si hay error lo limpia
+        document.getElementById("titulo").value = -1;
+    }
+
+    //Guardar
+    function Guardar(resultado) {
+        if (resultado == "1" || resultado == "0") //1 Se modifico un valor, 0 no se ha modificado ningun valor
+        {
+            $("#frmFiltro").trigger("submit"); /*Refrescamos la vista parcial*/
+            document.getElementById("btnClose").click(); //Cerramos la vista parcial
+            alert("Se guardo correctamente");
+        } else {
+            if (resultado == "-1") {
+                alert("Ya existe en la base de datos");
+                document.getElementById("error").innerHTML = "";
+            }else
+            alert("Ocurrio un error");
+        }
+    }
+
+    //Editar
+    function Editar(id) {
+        Limpiar();
+        document.getElementById("error").innerHTML = ""; //Si hay error lo limpia
+        document.getElementById("titulo").value = id;
+        // alert(id)
+
+        //Recuperando información Json
+        //   (Controllers/Action/Parametro)
+        $.get("Rol/recuperarDatos/?titulo=" + id, function (data) {
+            document.getElementById("nombre").value = data.nombre;
+            document.getElementById("descripcion").value = data.descripcion;
+        })
+    }
+
+    // Eliminar
+    function Eliminar(idrol) {
+        document.getElementById("titulo").value = idrol;
+    }
+
+    function EliminarRegistro() {
+
+        //Controller/Action?Parametro(Si tenemos un objeto en el controlador podemos pasar un parametro que esté en ese modelo )
+        var id = document.getElementById("titulo").value;
+
+        $.get("Rol/eliminar/?iidRol=" + id, function (data) {
+            if (data == "1") { // Ok
+                alert("Se ejecuto correctamente"); // mensaje
+                $("#frmFiltro").trigger("submit"); /*Refrescamos la vista parcial*/
+                document.getElementById("btnCerrarConfirmacion").click(); // Cerrar ventana
+            }
+        })
+    }
+
+</script>
+

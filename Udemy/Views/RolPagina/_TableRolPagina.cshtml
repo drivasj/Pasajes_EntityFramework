@@ -1,0 +1,28 @@
+﻿@using Udemy.Models;
+@model List<RolPaginaCLS>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>ID Rol Página</th>
+            <th>Nombre Rol</th>
+            <th>Nombre Página</th>
+            <th>Operaciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.iidrolpagina</td>
+                <td>@item.nombreRol</td>
+                <td>@item.nombreMensaje</td>
+                <td>
+                    <button type="button" onclick="Editar(@item.iidrolpagina)" class="btn btn-primary glyphicon glyphicon-edit" data-toggle="modal" data-target="#exampleModal"> </button>
+                    <button type="button" onclick="Eliminar(@item.iidrolpagina)" class="btn btn-danger glyphicon glyphicon-trash" data-toggle="modal" data-target="#exampleModalConfirmacion"></button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

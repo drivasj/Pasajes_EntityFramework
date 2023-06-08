@@ -1,0 +1,141 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using Udemy.Models;
+namespace Udemy.Controllers
+{
+    public class SucursalController : Controller
+    {
+        // GET: Sucursal
+        public ActionResult Index(SucursalCLS oSucursalCls)
+        {
+            List<SucursalCLS> listaSucursal = null;
+            string nombreSucursal = oSucursalCls.nombre;
+
+            using (var bd = new BDPasajeEntities())
+            {
+                if (oSucursalCls.nombre == null)
+                    listaSucursal = (from sucursal in bd.Sucursal
+                                 where sucursal.BHABILITADO ==1
+                                 select new SucursalCLS
+                                 {
+                                     iidsucursal = sucursal.IIDSUCURSAL,
+                                     nombre = sucursal.NOMBRE,
+                                     telefono = sucursal.TELEFONO,
+                                     email = sucursal.EMAIL
+                                 }).ToList();                                
+                else           
+                    listaSucursal = (from sucursal in bd.Sucursal
+                                     where sucursal.BHABILITADO == 1
+                                     && sucursal.NOMBRE.Contains(nombreSucursal)
+                                     select new SucursalCLS
+                                     {
+                                         iidsucursal = sucursal.IIDSUCURSAL,
+                                         nombre = sucursal.NOMBRE,
+                                         telefono = sucursal.TELEFONO,
+                                         email = sucursal.EMAIL
+                                     }).ToList();
+                }                
+           
+            return View(listaSucursal);
+        }
+
+        public ActionResult Editar(int id)
+        {
+            SucursalCLS oSucursalCLS = new SucursalCLS();
+            using (var bd = new BDPasajeEntities())
+            {
+                Sucursal oSucursal = bd.Sucursal.Where(p=> p.IIDSUCURSAL.Equals(id)).First();
+                oSucursalCLS.iidsucursal = oSucursal.IIDSUCURSAL;
+                oSucursalCLS.nombre = oSucursal.NOMBRE;
+                oSucursalCLS.direccion = oSucursal.DIRECCION;
+                oSucursalCLS.telefono = oSucursal.TELEFONO;
+                oSucursalCLS.email = oSucursal.EMAIL;
+                oSucursalCLS.fechaApertura = (DateTime)oSucursal.FECHAAPERTURA;
+
+            }
+                return View(oSucursalCLS);
+        }
+        public ActionResult Agregar()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Agregar(SucursalCLS oSucursalCLS)
+        {
+            int nrrgEncontrados = 0;
+            string nmSucursal = oSucursalCLS.nombre;
+            using (var bd = new BDPasajeEntities())
+            {
+                nrrgEncontrados = bd.Sucursal.Where(p => p.NOMBRE.Equals(nmSucursal)).Count();
+            }
+                if (!ModelState.IsValid || nrrgEncontrados >=1)
+                {
+                if (nrrgEncontrados >= 1) oSucursalCLS.mensajeError = "Ya existe la sucursal a agregar"; // Pasamos a la vista agregar el mensaje si se editar una marca repetida
+
+                return View(oSucursalCLS);
+                }
+            using (var bd = new BDPasajeEntities())
+            {
+                Sucursal oSucursal = new Sucursal();
+                oSucursal.NOMBRE = oSucursalCLS.nombre;
+                oSucursal.DIRECCION = oSucursalCLS.direccion;
+                oSucursal.TELEFONO = oSucursalCLS.telefono;
+                oSucursal.EMAIL = oSucursalCLS.email;
+                oSucursal.FECHAAPERTURA = oSucursalCLS.fechaApertura;
+                oSucursal.BHABILITADO = 1;
+                bd.Sucursal.Add(oSucursal);
+                bd.SaveChanges();
+            }
+                return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult Editar (SucursalCLS oSucursalCLS, MarcaDRCLS oMarcaDRCLS)
+        {
+            int nrrgEncontrados = 0;
+            int idSucursal = oSucursalCLS.iidsucursal;
+            string nmSucursal = oSucursalCLS.nombre; 
+            using (var bd = new BDPasajeEntities())
+            {
+                nrrgEncontrados = bd.Sucursal.Where(p => p.NOMBRE.Equals(nmSucursal) &&p.IIDSUCURSAL.Equals(idSucursal)).Count();
+            }
+                if (!ModelState.IsValid || nrrgEncontrados >=1)
+                {
+                if (nrrgEncontrados >= 1) oSucursalCLS.mensajeError = "Ya existe la sucursal"; // Pasamos a la vista agregar el mensaje si se editar una marca repetida
+
+                return View(oSucursalCLS);
+                }
+
+            using (var bd = new BDPasajeEntities())
+            {
+                Sucursal oSucursal = bd.Sucursal.Where(p => p.IIDSUCURSAL.Equals(idSucursal)).First();
+
+                oSucursal.NOMBRE = oSucursalCLS.nombre;
+                oSucursal.DIRECCION = oSucursalCLS.direccion;
+                oSucursal.EMAIL = oSucursalCLS.email;
+                oSucursal.FECHAAPERTURA = oSucursalCLS.fechaApertura;
+                //2DA inserción
+                MarcaDR oMarcaDR = new MarcaDR();
+
+                bd.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        public ActionResult Eliminar(int id)
+        {
+            using (var bd = new BDPasajeEntities())
+            {
+                Sucursal oSucursal = bd.Sucursal.Where(p => p.IIDSUCURSAL.Equals(id)).First();
+                oSucursal.BHABILITADO = 0;
+                bd.SaveChanges();
+            }
+
+                return RedirectToAction("Index");
+        }
+    }
+}

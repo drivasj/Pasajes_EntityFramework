@@ -1,0 +1,133 @@
+﻿@using Udemy.Models;
+@model List<EmpleadoCLS>
+@{
+    ViewBag.Title = "Index";
+    List<SelectListItem> ListaUsuario = (List<SelectListItem>)ViewBag.listaTipoUsuario;
+}
+
+<h2>Empleado</h2>
+
+<br /><br />
+<button class="btn btn-primary" onclick="javascript: fnExcelReport('dataTable', 'data')">Exportar Excel</button>
+@Html.ActionLink("Agregar", "Agregar", "Empleado", null, new { @class = "btn btn-primary" })
+<br /><br />
+
+@using (Html.BeginForm("Index", "Empleado", FormMethod.Get, new {@id="frmBusqueda" })){
+
+@Html.Label("Ingresa el tipo de usuario")
+@Html.DropDownList("iidtipoUsuario", ListaUsuario)
+
+<br /><br />
+
+<table class="table table-hover table-bordered" id="dataTable">
+    <thead>
+        <tr>
+            <td>@Html.LabelFor(p => Model[0].iidEmpleado)</td>
+            <td>@Html.LabelFor(p => Model[0].nombre)</td>
+            <td>@Html.LabelFor(p => Model[0].apPaterno)</td>
+            <td>@Html.LabelFor(p => Model[0].apMaterno)</td>
+            <td>@Html.LabelFor(p => Model[0].nombreTipoUsuario)</td>
+            <td>@Html.LabelFor(p => Model[0].nombreTipoContrato)</td>
+            <td>Sueldo</td>
+            <td>Operaciones</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.iidEmpleado</td>
+                <td>@item.nombre</td>
+                <td>@item.apPaterno</td>
+                <td>@item.apMaterno</td>
+                <td>@item.nombreTipoUsuario</td>
+                <td>@item.nombreTipoContrato</td>
+                <td>@item.sueldo</td>
+                <td>
+                    @Html.ActionLink(" ", "Editar", "Empleado", new { id = @item.iidEmpleado }, new { @class = "glyphicon glyphicon-edit btn btn-primary" })
+              @*      @Html.ActionLink(" ", "Eliminar", "Empleado", new { id = @item.iidEmpleado }, new { @class = "glyphicon glyphicon-trash btn btn-danger" }) *@
+
+                    <button type="button" onclick="mostrarPopup(@item.iidEmpleado)" class="glyphicon glyphicon-trash btn btn-danger" data-toggle="modal" data-target="#exampleModal"></button>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+}
+
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">¿Desea guardar los cambios?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div style="padding:1em">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" onclick="inhabilitar()" class="btn btn-info">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginForm("Eliminar", "Empleado", FormMethod.Post, new { @id = "frmEmpleado" }))
+{
+    @Html.Hidden("TextiidEmpleado");
+}
+
+
+<script>
+
+    //mostrarPopup Eliminar
+    function mostrarPopup(iidcliente)
+    {
+        document.getElementById("TextiidEmpleado").value = iidcliente;
+  
+    }
+
+    //inhabilitar
+    function inhabilitar()
+    {
+        var frmEmpleado = document.getElementById("frmEmpleado");
+        frmEmpleado.submit();
+    }
+
+    //Excel Export
+
+    function fnExcelReport(id, name) {
+        var tab_text = '<html xmlns: x="urn:schemas-microsoft-com:office:excel">';
+        tab_text = tab_text + '<head><xml><x: ExcelWorkbook><x: ExcelWorksheets><x: ExcelWorksheet>';
+        tab_text = tab_text + '<x: Name>Test Sheet</x: Name>';
+        tab_text = tab_text + '<x: WorksheetOptions><x: Panes></x: Panes></x: WorksheetOptions ></x: ExcelWorksheet > ';
+        tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+        tab_text = tab_text + "<table border='1px' style='color:black'>";
+
+
+        var exportTable = $('#' + id).clone();
+        exportTable.find('th').last().remove();
+        exportTable.find('input').each(function (index, elem) { $(elem).remove(); });
+        exportTable.find('a').each(function (index, elem) { $(elem).remove(); });
+
+        tab_text = tab_text + exportTable.html();
+        tab_text = tab_text + '</table></body></html>';
+        var fileName = "FE" + '.xls';
+
+        //Save the file
+        var blob = new Blob([tab_text], { type: "application/vnd.ms-excel;charset=utf-8" })
+        window.saveAs(blob, fileName);
+    }
+
+    var iidtipoUsuario = document.getElementById("iidtipoUsuario");
+    iidtipoUsuario.onchange=function()
+    {
+        var frmBusqueda = document.getElementById("frmBusqueda");
+        frmBusqueda.submit();
+    }
+</script>
+<script src="~/Content/FileSaver.js"></script> 

@@ -1,0 +1,67 @@
+﻿@using Udemy.Models;
+@model SucursalCLS
+@{
+    ViewBag.Title = "Agregar";
+}
+
+<h2>Agregar</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        @using (Html.BeginForm("Agregar", "Sucursal", FormMethod.Post, new {@id= "frmSucursal" }))
+        {
+            <div>
+                @Html.LabelFor(p => p.nombre)
+                @Html.TextBoxFor(p => p.nombre, new { @class = "form-control" })
+                @Html.ValidationMessage("nombre", new { @class = "text-danger" })
+                @*Validamos que la Sucursal no sea repetida*@
+                @if (Model != null && Model.mensajeError != null)
+                {
+                    @Html.Label(Model.mensajeError, new { @class = "text-danger" })
+                }
+            </div>
+            <div>
+                @Html.LabelFor(p => p.direccion)
+                @Html.TextBoxFor(p => p.direccion, new { @class = "form-control" })
+                @Html.ValidationMessage("direccion", new { @class = "text-danger" })
+            </div>
+            <div>
+                @Html.LabelFor(p => p.telefono)
+                @Html.TextBoxFor(p => p.telefono, new { @class = "form-control" })
+                @Html.ValidationMessage("telefono", new { @class = "text-danger" })
+            </div>
+            <div>
+                @Html.LabelFor(p => p.email)
+                @Html.TextBoxFor(p => p.email, new { @class = "form-control" })
+                @Html.ValidationMessage("email", new { @class = "text-danger" })
+            </div>
+            <div>
+                @Html.LabelFor(p => p.fechaApertura)
+                @Html.EditorFor(p => p.fechaApertura, new { HtmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessage("fechaApertura", new { @class = "text-danger" })
+            </div>
+            <br />
+            <div style="margin:auto">
+                <input type="submit" class="btn btn-primary" value="Guardar" />
+                @Html.ActionLink("Regresar","Index","Sucursal",null, new  {@class="btn btn-danger "})
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+
+    var frmSucursal = document.getElementById("frmSucursal");
+    frmSucursal.onsubmit = function (e) {
+        e.preventDefault();
+
+        if (confirm("¿Esta seguro de agregar?") == 1) {
+            frmSucursal.submit();
+        }
+
+    }
+
+
+</script>
+
+

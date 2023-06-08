@@ -1,0 +1,33 @@
+﻿@using Udemy.Models;
+@model List<ViajeCLS>
+
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <td>@Html.LabelFor(p => Model[0].iidviaje)</td>
+            <td>@Html.LabelFor(p => Model[0].nombreLugarOrigen)</td>
+            <td>@Html.LabelFor(p => Model[0].nombreLugarDestino)</td>
+            <td>@Html.LabelFor(p => Model[0].nombreBus)</td>
+            <th>Precio</th>
+            <th> Asientos Disponibles</th>
+            <th>Operaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.iidviaje</td>
+                <td>@item.nombreLugarOrigen</td>
+                <td>@item.nombreLugarDestino</td>
+                <td>@item.nombreBus</td>  
+                <td>@item.precio</td>
+                <td>@item.numeroAsientosDisponibles</td>
+                <td>
+                    <button type="button" onclick="Editar(@item.iidviaje)" class="btn btn-primary glyphicon glyphicon-edit" data-toggle="modal" data-target="#exampleModal"> </button>
+                    <button type="button" onclick="Eliminar(@item.iidviaje)" class="btn btn-danger glyphicon glyphicon-trash" data-toggle="modal" data-target="#exampleModalConfirmacion"></button>
+                </td>          
+            </tr>
+        }
+    </tbody>
+</table>

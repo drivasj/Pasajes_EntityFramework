@@ -1,0 +1,53 @@
+﻿@using Udemy.Models
+<br />
+@using (Ajax.BeginForm("Index", "", new AjaxOptions
+{
+    HttpMethod = "POST",
+    UpdateTargetId = "divFiltro",
+    InsertionMode = InsertionMode.Replace,
+    LoadingElementId = "loader"
+}, new { @id = "frmFiltro", @class = "form-inline" }))
+{
+    <input type="number" name="idini" class="form-control">
+    @Html.Label("Hasta")
+    <input type="number" name="idfin" class="form-control">
+
+    <button type="submit" class="btn btn-primary">Buscar</button>
+
+    <!--Barra de carga -->
+    <label style="text-align:center;display:none" id="loader">
+        <img src="~/Content/img/ProgressPurple.gif" height="50" width="50" />
+    </label>
+    <br /><br />
+    <div id="divFiltro">
+        <table class="table table-bordered table-hover">
+
+            @{
+                if (ViewBag.ListaLugares == null)
+                {
+                    <tr><th>Seleccione un rango</th> </tr>
+                }
+                else
+                {
+                    <tr>
+                        <th> ID</th>
+                        <th> Nombre</th>
+                        <th> Descripción</th>
+                    </tr>
+                    foreach (var M in ViewBag.ListaLugares as List<SP_Lugares_Result>)
+                    {
+                        <tr>
+                            <td>@M.IIDLUGAR</td>
+                            <td>@M.NOMBRE</td>
+                            <td>@M.DESCRIPCION</td>
+                        </tr>
+                    }
+                }
+            }
+
+        </table>
+    </div>
+        @*<div id="divFiltro">
+                @Html.Partial("_TablaLugares")
+            </div>*@
+        }
